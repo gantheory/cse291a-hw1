@@ -1,0 +1,63 @@
+Using base path: ./assign1_data
+Using lmType: TRIGRAM
+Decoding all sentences.
+Building MyNgramLm...
+On sentence 1000000
+On sentence 2000000
+On sentence 3000000
+On sentence 4000000
+On sentence 5000000
+On sentence 6000000
+On sentence 7000000
+On sentence 8000000
+On sentence 9000000
+Uni-gram: 495172
+Bi-gram: 8374230
+Tri-gram: 41627672
+Total: 50497074
+Done building MyNgramLm.
+Performing spot checks...
+Count matches expected count 19880264 = 19880264 for [the]
+Count matches expected count 31257 = 31257 for [in, terms, of]
+Count matches expected count 30 = 30 for [romanian, independent, society]
+Count matches expected count 0 = 0 for [XXXtotally, XXXunseen, XXXtrigram]
+Distribution for context [in, terms] normalizes correctly, sums to 0.9999853953814533
+Distribution for context [romanian, independent] normalizes correctly, sums to 1.0000454757500297
+Distribution for context [the] normalizes correctly, sums to 1.0005205722347712
+Spot checks completed
+Reading phrase table from file ./assign1_data/phrasetable.txt.gz {
+Line 100000
+Line 200000
+Line 300000
+Line 400000
+Line 500000
+Line 600000
+Line 700000
+Line 800000
+Line 900000
+Line 1000000
+} [5s]
+Memory usage is 1.2G
+Decoding all test sentences
+On sentence 100
+On sentence 200
+On sentence 300
+On sentence 400
+On sentence 500
+On sentence 600
+On sentence 700
+On sentence 800
+On sentence 900
+On sentence 1000
+On sentence 1100
+On sentence 1200
+On sentence 1300
+On sentence 1400
+On sentence 1500
+On sentence 1600
+On sentence 1700
+On sentence 1800
+On sentence 1900
+On sentence 2000
+Decoding took 328.564s
+BLEU score on test data was BLEU(24.936)
