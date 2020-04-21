@@ -15,8 +15,8 @@ class MyTrigramLm implements NgramLanguageModel {
   // Constants.
   static final double EPSILON = 1e-9;
   static final double LOG_ZERO = Math.log(EPSILON);
-  static final int BIGRAM_RELATED_CAPACITY = 12000000;
-  static final int TRIGRAM_RELATED_CAPACITY = 5 * BIGRAM_RELATED_CAPACITY;
+  static int BIGRAM_RELATED_CAPACITY = 12000000;
+  static int TRIGRAM_RELATED_CAPACITY = 5 * BIGRAM_RELATED_CAPACITY;
 
   // Absolute discounting.
   static final double d = 0.75;
@@ -29,16 +29,31 @@ class MyTrigramLm implements NgramLanguageModel {
   double[] logUnigramProb;
 
   // Variables for bi-gram.
-  MyCountHashMap bigramCount = new MyCountHashMap(BIGRAM_RELATED_CAPACITY);
-  MyCountHashMap bigramFertilityCount = new MyCountHashMap(BIGRAM_RELATED_CAPACITY);
+  MyCountHashMap bigramCount;
+  MyCountHashMap bigramFertilityCount;
   long[] sumOfFertilityCount;
   long[] numOfBigramDiscount;
 
   // Variables for tri-gram.
-  MyCountHashMap trigramCount = new MyCountHashMap(TRIGRAM_RELATED_CAPACITY);
-  MyCountHashMap numOfTrigramDiscount = new MyCountHashMap(BIGRAM_RELATED_CAPACITY);
+  MyCountHashMap trigramCount;
+  MyCountHashMap numOfTrigramDiscount;
 
   public MyTrigramLm(Iterable<List<String>> sentenceCollection) {
+    System.out.println("Determining the size of the map...");
+    int count = 0;
+    for (List<String> sentence : sentenceCollection) {
+      ++count;
+      if (count > 1000) break;
+    }
+    if (count <= 1000) {
+      BIGRAM_RELATED_CAPACITY = 15000;
+      TRIGRAM_RELATED_CAPACITY = 24000;
+    }
+    bigramCount = new MyCountHashMap(BIGRAM_RELATED_CAPACITY);
+    bigramFertilityCount = new MyCountHashMap(BIGRAM_RELATED_CAPACITY);
+    trigramCount = new MyCountHashMap(TRIGRAM_RELATED_CAPACITY);
+    numOfTrigramDiscount = new MyCountHashMap(BIGRAM_RELATED_CAPACITY);
+
     System.out.println("Building MyNgramLm...");
     wordCounter = new long[numOfUniqueWords];
     Arrays.fill(wordCounter, 0);
