@@ -2,37 +2,32 @@ package edu.berkeley.nlp.assignments.assign1.student;
 
 import java.util.Arrays;
 
-public class MyCountHashMap {
-  public long[] keys;
-  public int[] values;
+public class MyRankHashMap {
+  private long[] keys;
+  private short[] values;
   private int size = 0;
   private final int MAX_LOAD_FACTOR = 100; // will be divided by 100
 
-  public MyCountHashMap() {
+  public MyRankHashMap() {
     this(10);
   }
 
-  public MyCountHashMap(int initialCapacity) {
+  public MyRankHashMap(int initialCapacity) {
     keys = new long[initialCapacity];
-    values = new int[initialCapacity];
+    values = new short[initialCapacity];
     Arrays.fill(keys, -1);
   }
 
   public int size() { return size; }
 
-  public void clear() {
-    keys = null;
-    values = null;
-  }
-
-  public int get(long key) {
+  public short get(long key) {
     int i = findSlot(key, keys);
     if (keys[i] == key)
       return values[i];
-    return 0;
+    return -1;
   }
 
-  public void put(long key, int value) {
+  public void put(long key, short value) {
     int i = findSlot(key, keys);
     if (keys[i] == key) {
       values[i] = value;
@@ -40,9 +35,9 @@ public class MyCountHashMap {
       return;
     }
     if ((long) size * 100 >= ((long) keys.length * MAX_LOAD_FACTOR)) {
-      System.out.println("MyCountHashMap is growing to " + keys.length * 2);
+      System.out.println("MyRankHashMap is growing to " + keys.length * 2);
       long[] newKeys = new long[keys.length * 2];
-      int[] newValues = new int[keys.length * 2];
+      short[] newValues = new short[keys.length * 2];
       Arrays.fill(newKeys, -1);
       size = 0;
       for (int j = 0; j < keys.length; ++j) {
@@ -61,7 +56,7 @@ public class MyCountHashMap {
     ++size;
   }
 
-  public int get(int[] key) {
+  public short get(int[] key) {
     assert(0 < key.length && key.length <= 3);
     if (key.length == 1) {
       return get(hashCode(key[0]));

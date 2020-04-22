@@ -5,6 +5,7 @@ import edu.berkeley.nlp.langmodel.LanguageModelFactory;
 import edu.berkeley.nlp.langmodel.NgramLanguageModel;
 import edu.berkeley.nlp.util.CollectionUtils;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Arrays;
 
@@ -36,7 +37,11 @@ class MyTrigramLm implements NgramLanguageModel {
 
   // Variables for tri-gram.
   MyCountHashMap trigramCount;
+  MyRankHashMap trigramRank;
   MyCountHashMap numOfTrigramDiscount;
+
+  // Rank table.
+  int[] rankTable;
 
   public MyTrigramLm(Iterable<List<String>> sentenceCollection) {
     System.out.println("Determining the size of the map...");
@@ -120,6 +125,51 @@ class MyTrigramLm implements NgramLanguageModel {
     System.out.println("Bi-gram: " + bigramCount.size());;
     System.out.println("Tri-gram: " + trigramCount.size());;
     System.out.println("Total: " + (wordCounter.length + bigramCount.size() + trigramCount.size()));;
+
+    HashSet<Integer> st = new HashSet<Integer>();
+    for (int i = 0; i < trigramCount.keys.length; ++i) {
+      long key = trigramCount.keys[i];
+      int value = trigramCount.values[i];
+      if (key != -1) {
+        st.add(value);
+      }
+    }
+    rankTable = new int[st.size()];
+    System.out.println("Size of rank table: " + rankTable.length);
+    int rankTableIndex = 0;
+    st = new HashSet<Integer>();
+    for (int i = 0; i < trigramCount.keys.length; ++i) {
+      long key = trigramCount.keys[i];
+      int value = trigramCount.values[i];
+      if (key != -1 && !st.contains(value)) {
+        st.add(value);
+        rankTable[rankTableIndex] = value;
+        ++rankTableIndex;
+      }
+    }
+    st.clear();
+    Arrays.sort(rankTable);
+    trigramRank = new MyRankHashMap(TRIGRAM_RELATED_CAPACITY);
+    for (int i = 0; i < trigramCount.keys.length; ++i) {
+      long key = trigramCount.keys[i];
+      int value = trigramCount.values[i];
+
+      if (key == -1) continue;
+      int l = 0, r = rankTable.length - 1;
+      while (l <= r) {
+        short mid = (short) ((l + r) / 2);
+        if (rankTable[mid] == value) {
+          trigramRank.put(key, mid);
+          break;
+        } else if (rankTable[mid] < value) {
+          l = mid + 1;
+        } else {
+          r = mid - 1;
+        }
+      }
+    }
+    trigramCount.clear();
+
     System.out.println("Done building MyNgramLm.");
   }
 
@@ -166,8 +216,9 @@ class MyTrigramLm implements NgramLanguageModel {
       long hashCode = bigramCount.hashCode(prev1, prev2);
       int sumOfTrigramCount = bigramCount.get(hashCode);
 
-      hashCode = trigramCount.hashCode(prev1, prev2, word);
-      int originalCount = trigramCount.get(hashCode);
+      hashCode = trigramRank.hashCode(prev1, prev2, word);
+      int index = trigramRank.get(hashCode);
+      int originalCount = (index >= 0 ? rankTable[index] : 0);
       if (sumOfTrigramCount == 0) return getBigramLogProbability(prev2, word);
 
       double discountedProb = (Math.max((double)originalCount - d, 0)) / (double)sumOfTrigramCount;
@@ -192,7 +243,8 @@ class MyTrigramLm implements NgramLanguageModel {
     } else if (ngram.length == 2) {
       return bigramCount.get(ngram);
     } else if (ngram.length == 3){
-      return trigramCount.get(ngram);
+      int index = trigramRank.get(ngram);
+      return (index == -1 ? 0 : rankTable[index]);
     } else {
       System.out.println("WARNING: length of ngram > 3");
       return 0;
